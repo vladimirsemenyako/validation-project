@@ -1,0 +1,10 @@
+raw:
+  required_folders:
+    - sales
+    - students
+    - fruits
+  file_requirements:
+    sales:
+      required_columns: ["order_id", "date"]
+    students:
+      required_columns: ["Course", "Nacionality", "Gender", "GDP", "Sex", "GRADE"]
