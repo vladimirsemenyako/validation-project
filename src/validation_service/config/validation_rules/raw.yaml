@@ -5,6 +5,22 @@ raw:
     - fruits
   file_requirements:
     sales:
-      required_columns: ["order_id", "date"]
+      required_columns: 
+        order_id:
+          type: "int"
+        date:
+          type: "datetime"
     students:
-      required_columns: ["Course", "Nacionality", "Gender", "GDP", "Sex", "GRADE"]
+      required_columns:
+        Course:
+          type: "str"
+        Nacionality:
+          type: "str"
+        Gender:
+          type: "str"
+        GDP:
+          type: "float"
+        Sex:
+          type: "str"
+        GRADE:
+          type: "float"

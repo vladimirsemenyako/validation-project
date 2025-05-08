@@ -1,8 +1,9 @@
 from pathlib import Path
 import pandas as pd
-from typing import List, Dict
+from typing import List, Dict, Any
 import csv
 from datetime import datetime
+import numpy as np
 
 
 class RawValidator:
@@ -63,10 +64,10 @@ class RawValidator:
                         required_columns=requirements["required_columns"]
                     )
 
-    def _validate_columns(self, file_path: Path, required_columns: List[str]):
+    def _validate_columns(self, file_path: Path, required_columns: Dict[str, Dict[str, str]]):
         try:
             if file_path.suffix == ".csv":
-                df = pd.read_csv(file_path, nrows=0)
+                df = pd.read_csv(file_path)
             else:
                 self.errors.append({
                     'error_level': 'error',
@@ -77,7 +78,8 @@ class RawValidator:
                 })
                 return
 
-            missing = [col for col in required_columns if col not in df.columns]
+            # Check if all required columns exist
+            missing = [col for col in required_columns.keys() if col not in df.columns]
             if missing:
                 for col in missing:
                     self.errors.append({
@@ -87,11 +89,79 @@ class RawValidator:
                         'folder_name': str(file_path.parent),
                         'line_number': ''
                     })
+                return
+
+            # Validate data types for each column
+            for column, requirements in required_columns.items():
+                expected_type = requirements["type"]
+                self._validate_column_type(df, column, expected_type, file_path)
 
         except Exception as e:
             self.errors.append({
                 'error_level': 'error',
                 'error_text': f"Failed to read {file_path}: {str(e)}",
+                'file_name': file_path.name,
+                'folder_name': str(file_path.parent),
+                'line_number': ''
+            })
+
+    def _validate_column_type(self, df: pd.DataFrame, column: str, expected_type: str, file_path: Path):
+        try:
+            if expected_type == "int":
+                for idx, value in enumerate(df[column], start=2):  # start=2 because CSV has header
+                    try:
+                        pd.to_numeric(value, downcast='integer')
+                    except (ValueError, TypeError):
+                        self.errors.append({
+                            'error_level': 'error',
+                            'error_text': f"Wrong datatype for the column {column}",
+                            'file_name': file_path.name,
+                            'folder_name': str(file_path.parent),
+                            'line_number': str(idx)
+                        })
+            
+            elif expected_type == "float":
+                for idx, value in enumerate(df[column], start=2):
+                    try:
+                        pd.to_numeric(value)
+                    except (ValueError, TypeError):
+                        self.errors.append({
+                            'error_level': 'error',
+                            'error_text': f"Wrong datatype for the column {column}",
+                            'file_name': file_path.name,
+                            'folder_name': str(file_path.parent),
+                            'line_number': str(idx)
+                        })
+            
+            elif expected_type == "datetime":
+                for idx, value in enumerate(df[column], start=2):
+                    try:
+                        pd.to_datetime(value)
+                    except (ValueError, TypeError):
+                        self.errors.append({
+                            'error_level': 'error',
+                            'error_text': f"Wrong datatype for the column {column}",
+                            'file_name': file_path.name,
+                            'folder_name': str(file_path.parent),
+                            'line_number': str(idx)
+                        })
+            
+            elif expected_type == "str":
+                pass
+            
+            else:
+                self.errors.append({
+                    'error_level': 'error',
+                    'error_text': f"Unsupported data type '{expected_type}' for column {column}",
+                    'file_name': file_path.name,
+                    'folder_name': str(file_path.parent),
+                    'line_number': ''
+                })
+
+        except Exception as e:
+            self.errors.append({
+                'error_level': 'error',
+                'error_text': f"Error validating column {column}: {str(e)}",
                 'file_name': file_path.name,
                 'folder_name': str(file_path.parent),
                 'line_number': ''
