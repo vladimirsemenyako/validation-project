@@ -1,0 +1,9 @@
+error_level,error_text,file_name,folder_name,line_number
+error,Required folder 'sales' is missing,,../files/raw/sales,
+error,Required folder 'fruits' is missing,,../files/raw/fruits,
+error,Required column 'Course' is missing,StudentsPerformance_with_headers.csv,../files/raw/students,
+error,Required column 'Nacionality' is missing,StudentsPerformance_with_headers.csv,../files/raw/students,
+error,Required column 'Gender' is missing,StudentsPerformance_with_headers.csv,../files/raw/students,
+error,Required column 'GDP' is missing,StudentsPerformance_with_headers.csv,../files/raw/students,
+error,Required column 'Sex' is missing,students_dropout_academic_success.csv,../files/raw/students,
+error,Required column 'GRADE' is missing,students_dropout_academic_success.csv,../files/raw/students,
