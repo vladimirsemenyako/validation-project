@@ -1,6 +1,6 @@
 # 1. Build the Docker image.
 ```bash
-docker build -t validation-service .
+docker build -f build/Dockerfile -t validation-service .
 ```
 # 2. Run the container
 ```bash
