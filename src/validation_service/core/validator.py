@@ -223,7 +223,13 @@ class SourceValidator(BaseValidator):
 
                 if expected_type == "int":
                     try:
-                        pd.to_numeric(value, downcast='integer')
+                        # Convert to string first to handle various input types
+                        str_value = str(value).strip()
+                        # Check if it's a valid integer (no decimal point)
+                        if '.' in str_value:
+                            raise ValueError("Contains decimal point")
+                        # Try to convert to int
+                        int(str_value)
                     except (ValueError, TypeError):
                         self.errors.append({
                             'error_level': 'error',
