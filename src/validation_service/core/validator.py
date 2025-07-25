@@ -105,6 +105,10 @@ class RawValidator(BaseValidator):
                         'folder_name': str(file_path.parent),
                         'line_number': ''
                     })
+            
+            # Continue validation for existing columns even if some are missing
+            existing_columns = [col for col in required_columns if col in df.columns]
+            self._validate_data_quality(df, existing_columns, file_path)
 
         except Exception as e:
             self.errors.append({
@@ -114,6 +118,74 @@ class RawValidator(BaseValidator):
                 'folder_name': str(file_path.parent),
                 'line_number': ''
             })
+
+    def _validate_data_quality(self, df: pd.DataFrame, columns: List[str], file_path: Path):
+        """Perform basic data quality checks on existing columns"""
+        for column in columns:
+            if column not in df.columns:
+                continue
+                
+            for idx, value in enumerate(df[column], start=2):  # start=2 because CSV has header
+                # Check for empty/null values
+                if pd.isna(value) or (isinstance(value, str) and value.strip() == ''):
+                    self.errors.append({
+                        'error_level': 'warning',
+                        'error_text': f"Empty or null value found in column '{column}'",
+                        'file_name': file_path.name,
+                        'folder_name': str(file_path.parent),
+                        'line_number': str(idx)
+                    })
+                    continue
+                
+                # Basic data type inference and validation
+                if column.lower() in ['id', 'order_id', 'customer_id', 'fruit_id']:
+                    # Should be numeric for ID columns
+                    try:
+                        str_value = str(value).strip()
+                        if '.' in str_value:
+                            self.errors.append({
+                                'error_level': 'error',
+                                'error_text': f"ID column '{column}' contains decimal value: {value}",
+                                'file_name': file_path.name,
+                                'folder_name': str(file_path.parent),
+                                'line_number': str(idx)
+                            })
+                        else:
+                            int(str_value)
+                    except (ValueError, TypeError):
+                        self.errors.append({
+                            'error_level': 'error',
+                            'error_text': f"ID column '{column}' contains non-numeric value: {value}",
+                            'file_name': file_path.name,
+                            'folder_name': str(file_path.parent),
+                            'line_number': str(idx)
+                        })
+                
+                elif column.lower() in ['date', 'created_at', 'updated_at']:
+                    # Should be valid date format
+                    try:
+                        pd.to_datetime(value)
+                    except (ValueError, TypeError):
+                        self.errors.append({
+                            'error_level': 'error',
+                            'error_text': f"Date column '{column}' contains invalid date: {value}",
+                            'file_name': file_path.name,
+                            'folder_name': str(file_path.parent),
+                            'line_number': str(idx)
+                        })
+                
+                elif column.lower() in ['quantity', 'price', 'amount', 'gdp', 'grade']:
+                    # Should be numeric
+                    try:
+                        pd.to_numeric(value)
+                    except (ValueError, TypeError):
+                        self.errors.append({
+                            'error_level': 'error',
+                            'error_text': f"Numeric column '{column}' contains non-numeric value: {value}",
+                            'file_name': file_path.name,
+                            'folder_name': str(file_path.parent),
+                            'line_number': str(idx)
+                        })
 
 
 class SourceValidator(BaseValidator):
@@ -179,7 +251,6 @@ class SourceValidator(BaseValidator):
                         'folder_name': str(file_path.parent),
                         'line_number': ''
                     })
-                return
 
             extra = [col for col in df.columns if col not in required_columns.keys()]
             if extra:
@@ -192,10 +263,12 @@ class SourceValidator(BaseValidator):
                         'line_number': ''
                     })
 
+            # Only validate columns that exist in the dataframe
             for column, requirements in required_columns.items():
-                expected_type = requirements["type"]
-                nullable = requirements.get("nullable", False)
-                self._validate_column_type(df, column, expected_type, file_path, nullable)
+                if column in df.columns:
+                    expected_type = requirements["type"]
+                    nullable = requirements.get("nullable", False)
+                    self._validate_column_type(df, column, expected_type, file_path, nullable)
 
         except Exception as e:
             self.errors.append({
