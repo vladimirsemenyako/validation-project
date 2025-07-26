@@ -1,0 +1,66 @@
+source:
+  required_folders:
+    - sales
+    - students
+    - fruits
+  folder_file_requirements:
+    sales:
+      sales_data.csv:
+        columns:
+          order_id:
+            type: "int"
+            nullable: false
+          date:
+            type: "datetime"
+            nullable: false
+          product_name:
+            type: "str"
+            nullable: false
+          quantity:
+            type: "int"
+            nullable: false
+          price:
+            type: "float"
+            nullable: false
+          customer_id:
+            type: "int"
+            nullable: true
+    students:
+      student_data.csv:
+        columns:
+          Course:
+            type: "str"
+            nullable: false
+          Nacionality:
+            type: "str"
+            nullable: false
+          Gender:
+            type: "str"
+            nullable: false
+          GDP:
+            type: "float"
+            nullable: true
+          Sex:
+            type: "str"
+            nullable: false
+          GRADE:
+            type: "float"
+            nullable: false
+    fruits:
+      fruit_inventory.csv:
+        columns:
+          fruit_id:
+            type: "int"
+            nullable: false
+          fruit_name:
+            type: "str"
+            nullable: false
+          quantity:
+            type: "int"
+            nullable: false
+          price_per_kg:
+            type: "float"
+            nullable: false
+          origin_country:
+            type: "str"
+            nullable: true 

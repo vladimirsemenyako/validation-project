@@ -1,0 +1,11 @@
+Course,Nacionality,Gender,GDP,Sex,GRADE,Extra_Column
+Math,Russian,Male,35000.5,M,4.5,Test
+Physics,German,Female,42300.75,F,5.0,Extra
+Chemistry,French,Male,,M,4.8,Data
+Biology,Italian,Female,not-number,F,3.7,More
+History,Spanish,Male,39500.25,M,text,Info
+Geography,Chinese,XYZ,45600.80,Other,4.2,Testing
+Art,American,Male,51200.50,M,6.2,Values
+Music,Brazilian,Female,,F,4.0,Here
+Computer Science,Indian,Male,47800.30,M,4.9,Data
+Literature,Japanese,Female,38900.15,F,4.3,End

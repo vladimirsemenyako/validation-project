@@ -10,4 +10,4 @@ COPY src/ ./src/
 
 WORKDIR /app/src/validation_service
 
-CMD ["python", "main.py"] 
+ENTRYPOINT ["python", "main.py"]
